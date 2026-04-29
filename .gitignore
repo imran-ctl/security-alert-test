@@ -1,0 +1,6 @@
+# Local environment overrides with real secrets - never commit these
+config/*.local.env
+*.secret.env
+
+# Build output
+target/
