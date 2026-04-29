@@ -25,6 +25,11 @@ public class MyController {
             "127.", "10.", "169.254.", "192.168."
     );
 
+    private static final Set<String> BLOCKED_IPV6_PREFIXES = Set.of(
+            "::1",           // loopback
+            "0:0:0:0:0:0:0:1" // loopback expanded
+    );
+
     @GetMapping("/fetch")
     public ResponseEntity<String> fetchUrl(@RequestParam String url) {
         URI safeUri;
@@ -97,10 +102,11 @@ public class MyController {
         }
     }
 
-    private boolean isBlockedIpAddress(String ip) {
+    boolean isBlockedIpAddress(String ip) {
         if (ip == null) {
             return true;
         }
+        // Block IPv4 private/reserved ranges
         for (String prefix : BLOCKED_IP_PREFIXES) {
             if (ip.startsWith(prefix)) {
                 return true;
@@ -120,6 +126,15 @@ public class MyController {
                     return true;
                 }
             }
+        }
+        // Block IPv6 loopback (::1)
+        if (BLOCKED_IPV6_PREFIXES.contains(ip.toLowerCase())) {
+            return true;
+        }
+        // Block IPv6 link-local (fe80::/10) and unique-local (fc00::/7)
+        String lowerIp = ip.toLowerCase();
+        if (lowerIp.startsWith("fe80") || lowerIp.startsWith("fc") || lowerIp.startsWith("fd")) {
+            return true;
         }
         return false;
     }

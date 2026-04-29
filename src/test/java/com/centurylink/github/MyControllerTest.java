@@ -3,8 +3,6 @@ package com.centurylink.github;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.net.URI;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class MyControllerTest {
@@ -70,55 +68,62 @@ class MyControllerTest {
 
     @Test
     void isBlockedIpAddress_blocks10Range() {
-        MyController c = new MyController();
-        assertTrue(invokeIsBlockedIp(c, "10.0.0.1"));
-        assertTrue(invokeIsBlockedIp(c, "10.255.255.255"));
+        assertTrue(controller.isBlockedIpAddress("10.0.0.1"));
+        assertTrue(controller.isBlockedIpAddress("10.255.255.255"));
     }
 
     @Test
     void isBlockedIpAddress_blocks192168Range() {
-        MyController c = new MyController();
-        assertTrue(invokeIsBlockedIp(c, "192.168.0.1"));
-        assertTrue(invokeIsBlockedIp(c, "192.168.100.200"));
+        assertTrue(controller.isBlockedIpAddress("192.168.0.1"));
+        assertTrue(controller.isBlockedIpAddress("192.168.100.200"));
     }
 
     @Test
     void isBlockedIpAddress_blocks172PrivateRange() {
-        MyController c = new MyController();
-        assertTrue(invokeIsBlockedIp(c, "172.16.0.1"));
-        assertTrue(invokeIsBlockedIp(c, "172.31.255.255"));
-        assertFalse(invokeIsBlockedIp(c, "172.32.0.1"));
-        assertFalse(invokeIsBlockedIp(c, "172.15.0.1"));
+        assertTrue(controller.isBlockedIpAddress("172.16.0.1"));
+        assertTrue(controller.isBlockedIpAddress("172.31.255.255"));
+        assertFalse(controller.isBlockedIpAddress("172.32.0.1"));
+        assertFalse(controller.isBlockedIpAddress("172.15.0.1"));
     }
 
     @Test
     void isBlockedIpAddress_blocks127Loopback() {
-        MyController c = new MyController();
-        assertTrue(invokeIsBlockedIp(c, "127.0.0.1"));
-        assertTrue(invokeIsBlockedIp(c, "127.255.255.255"));
+        assertTrue(controller.isBlockedIpAddress("127.0.0.1"));
+        assertTrue(controller.isBlockedIpAddress("127.255.255.255"));
     }
 
     @Test
     void isBlockedIpAddress_blocksLinkLocal() {
-        MyController c = new MyController();
-        assertTrue(invokeIsBlockedIp(c, "169.254.169.254"));
-        assertTrue(invokeIsBlockedIp(c, "169.254.0.1"));
+        assertTrue(controller.isBlockedIpAddress("169.254.169.254"));
+        assertTrue(controller.isBlockedIpAddress("169.254.0.1"));
+    }
+
+    @Test
+    void isBlockedIpAddress_blocksIPv6Loopback() {
+        assertTrue(controller.isBlockedIpAddress("::1"));
+        assertTrue(controller.isBlockedIpAddress("0:0:0:0:0:0:0:1"));
+    }
+
+    @Test
+    void isBlockedIpAddress_blocksIPv6LinkLocal() {
+        assertTrue(controller.isBlockedIpAddress("fe80::1"));
+        assertTrue(controller.isBlockedIpAddress("FE80::1"));
+    }
+
+    @Test
+    void isBlockedIpAddress_blocksIPv6UniqueLocal() {
+        assertTrue(controller.isBlockedIpAddress("fc00::1"));
+        assertTrue(controller.isBlockedIpAddress("fd12:3456:789a::1"));
     }
 
     @Test
     void isBlockedIpAddress_allowsPublicIp() {
-        MyController c = new MyController();
-        assertFalse(invokeIsBlockedIp(c, "8.8.8.8"));
-        assertFalse(invokeIsBlockedIp(c, "172.32.0.1"));
+        assertFalse(controller.isBlockedIpAddress("8.8.8.8"));
+        assertFalse(controller.isBlockedIpAddress("172.32.0.1"));
     }
 
-    private boolean invokeIsBlockedIp(MyController c, String ip) {
-        try {
-            var method = MyController.class.getDeclaredMethod("isBlockedIpAddress", String.class);
-            method.setAccessible(true);
-            return (boolean) method.invoke(c, ip);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @Test
+    void isBlockedIpAddress_blocksNull() {
+        assertTrue(controller.isBlockedIpAddress(null));
     }
 }
