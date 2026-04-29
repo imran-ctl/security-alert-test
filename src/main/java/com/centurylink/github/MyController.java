@@ -102,6 +102,21 @@ public class MyController {
         }
     }
 
+    /**
+     * Checks whether the given IP address string belongs to a blocked (private/internal) range.
+     * Blocks the following:
+     * <ul>
+     *   <li>IPv4 loopback: 127.0.0.0/8</li>
+     *   <li>IPv4 private: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16</li>
+     *   <li>IPv4 link-local: 169.254.0.0/16 (cloud metadata service)</li>
+     *   <li>IPv6 loopback: ::1</li>
+     *   <li>IPv6 link-local: fe80::/10</li>
+     *   <li>IPv6 unique-local: fc00::/7 (fc::/8 and fd::/8)</li>
+     * </ul>
+     *
+     * @param ip the IP address string to check (may be IPv4 or IPv6)
+     * @return {@code true} if the address is blocked, {@code false} if it is considered public
+     */
     boolean isBlockedIpAddress(String ip) {
         if (ip == null) {
             return true;
@@ -122,7 +137,7 @@ public class MyController {
                         return true;
                     }
                 } catch (NumberFormatException ignored) {
-                    // Treat unparseable 172.x octets as blocked for safety
+                    // Treat unparseable second octet in the 172.x range as blocked for safety
                     return true;
                 }
             }
