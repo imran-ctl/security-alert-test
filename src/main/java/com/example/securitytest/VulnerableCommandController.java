@@ -7,9 +7,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class VulnerableCommandController {
 
-    // Allowlist pattern: valid hostname/IP characters only (alphanumeric, dots, hyphens)
+    // Allowlist pattern: RFC 1123 hostname/IP — each label starts/ends with alphanumeric,
+    // may contain hyphens internally, labels separated by dots (max total length 253)
     private static final java.util.regex.Pattern VALID_HOST =
-            java.util.regex.Pattern.compile("^[a-zA-Z0-9.-]{1,253}$");
+            java.util.regex.Pattern.compile(
+                    "^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?" +
+                    "(\\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$");
 
     @GetMapping("/vuln/ping")
     public String ping(@RequestParam("host") String host) throws Exception {

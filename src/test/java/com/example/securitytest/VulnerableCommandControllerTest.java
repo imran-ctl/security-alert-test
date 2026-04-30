@@ -3,6 +3,7 @@ package com.example.securitytest;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class VulnerableCommandControllerTest {
 
@@ -13,7 +14,7 @@ class VulnerableCommandControllerTest {
         // A valid hostname should not return "Invalid host"
         String result = controller.ping("localhost");
         // Should not be rejected (result will be "started: <pid>" or similar)
-        assert !result.equals("Invalid host");
+        assertNotEquals("Invalid host", result);
     }
 
     @Test
