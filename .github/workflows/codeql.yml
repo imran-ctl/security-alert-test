@@ -2,7 +2,7 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "main", "security-alert-test" ]
+    branches: [ "main", "security-alert-test", "copilot/**" ]
   pull_request:
     branches: [ "main", "security-alert-test" ]
   workflow_dispatch:
@@ -20,8 +20,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: security-alert-test
 
       - name: Set up Java
         uses: actions/setup-java@v4
