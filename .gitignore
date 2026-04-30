@@ -1,0 +1,5 @@
+# Secret / credential files — never commit actual secrets
+config/dev.env
+config/*.env
+*.env
+!*.env.example
