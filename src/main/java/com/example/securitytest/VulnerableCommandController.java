@@ -1,13 +1,15 @@
 package com.example.securitytest;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 public class VulnerableCommandController {
@@ -22,9 +24,10 @@ public class VulnerableCommandController {
     );
 
     @GetMapping("/execute")
-    public String execute(@RequestParam String command) throws Exception {
+    public ResponseEntity<String> execute(@RequestParam String command)
+            throws IOException, InterruptedException {
         if (!ALLOWED_COMMANDS.containsKey(command)) {
-            return "Error: command not permitted.";
+            return ResponseEntity.badRequest().body("Error: command not permitted.");
         }
 
         // Arguments are supplied as a fixed array — never constructed from user input —
@@ -42,7 +45,16 @@ public class VulnerableCommandController {
                 output.append(line).append("\n");
             }
         }
-        process.waitFor();
-        return output.toString();
+
+        boolean finished = process.waitFor(10, TimeUnit.SECONDS);
+        if (!finished) {
+            process.destroyForcibly();
+            return ResponseEntity.internalServerError().body("Error: command timed out.");
+        }
+        if (process.exitValue() != 0) {
+            return ResponseEntity.internalServerError()
+                    .body("Error: command exited with status " + process.exitValue() + ".");
+        }
+        return ResponseEntity.ok(output.toString());
     }
 }

@@ -16,16 +16,16 @@ class VulnerableCommandControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    void disallowedCommandReturnsError() throws Exception {
+    void disallowedCommandReturnsBadRequest() throws Exception {
         mockMvc.perform(get("/execute").param("command", "rm -rf /"))
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andExpect(content().string("Error: command not permitted."));
     }
 
     @Test
     void shellInjectionAttemptIsRejected() throws Exception {
         mockMvc.perform(get("/execute").param("command", "date; cat /etc/passwd"))
-                .andExpect(status().isOk())
+                .andExpect(status().isBadRequest())
                 .andExpect(content().string("Error: command not permitted."));
     }
 
