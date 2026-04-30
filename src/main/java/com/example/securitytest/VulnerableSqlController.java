@@ -14,13 +14,13 @@ public class VulnerableSqlController {
 
     @GetMapping("/vuln/users")
     public String users(@RequestParam("name") String name) throws Exception {
-        Connection conn = DriverManager.getConnection("jdbc:h2:mem:testdb", "sa", "");
-
-        // Use parameterized query to prevent SQL injection
-        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM users WHERE name = ?");
-        stmt.setString(1, name);
-        ResultSet rs = stmt.executeQuery();
-
-        return rs.toString();
+        try (Connection conn = DriverManager.getConnection("jdbc:h2:mem:testdb", "sa", "");
+             // Use parameterized query to prevent SQL injection
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM users WHERE name = ?")) {
+            stmt.setString(1, name);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.toString();
+            }
+        }
     }
 }
