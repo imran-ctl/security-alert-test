@@ -1,0 +1,4 @@
+# Environment/secret files — never commit real credentials
+config/dev.env
+*.local.env
+*.secret.env
