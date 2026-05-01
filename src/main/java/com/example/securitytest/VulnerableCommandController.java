@@ -9,7 +9,9 @@ import java.util.regex.Pattern;
 @RestController
 public class VulnerableCommandController {
 
-    private static final Pattern SAFE_HOST_PATTERN = Pattern.compile("^[a-zA-Z0-9._-]{1,253}$");
+    // Validates a proper DNS hostname: labels of 1-63 alphanumeric/hyphen chars separated by dots
+    private static final Pattern SAFE_HOST_PATTERN =
+            Pattern.compile("^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)*[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$");
 
     @GetMapping("/vuln/ping")
     public String ping(@RequestParam("host") String host) throws Exception {
